@@ -1,16 +1,19 @@
-# unaccountable
 
-A new Flutter project.
+# Welcome to unaccountable
 
-## Getting Started
+unaccountable is a habit-tracking app that tracks your goals and keeps you motivated without any mercy.
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Authors
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- [Aaditya Jagdale](https://github.com/Contro1-cs)
+- [Pratik Asatkar](https://github.com/Pratik-Asatkar)
+
+
+
+### Week #1
+
+On Day 1, we commenced our project by outlining all the features and creating a wireframe for the app's user interface. We utilized the excellent website [Excalidraw](https://excalidraw.com/) for wireframing and relied on Figma for prototyping. Establishing clear expectations, targets, and defining unique features were prioritized as crucial steps in the app development process.
+
+### Stay tuned...
