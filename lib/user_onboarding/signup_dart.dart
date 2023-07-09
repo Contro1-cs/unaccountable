@@ -1,10 +1,13 @@
-import 'dart:ffi';
+// ignore_for_file: use_build_context_synchronously
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:unaccountable/landing_page.dart';
 import 'package:unaccountable/widgets/custom_form_field.dart';
 import 'package:unaccountable/user_onboarding/user_info.dart';
+import 'package:unaccountable/widgets/custom_snackbars.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -13,14 +16,73 @@ class SignupPage extends StatefulWidget {
   State<SignupPage> createState() => _SignupPageState();
 }
 
+TextEditingController _authEmailController = TextEditingController();
+TextEditingController _authPasswordController = TextEditingController();
+bool _loading = false;
+
 class _SignupPageState extends State<SignupPage> {
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
   bool _hidePassword = true;
+  @override
+  void dispose() {
+    _authEmailController.text = '';
+    _authPasswordController.text = '';
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    _authEmailController.text = '';
+    _authPasswordController.text = '';
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     var w = MediaQuery.of(context).size.width;
+
+    emailRegisteration() async {
+      try {
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _authEmailController.text.trim(),
+          password: _authPasswordController.text.trim(),
+        );
+
+        successSnackbar(context, 'Login successful');
+        Navigator.popUntil(context, (route) => false);
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 500),
+            pageBuilder: (context, animation, secondaryAnimation) {
+              return const UserInfoPage();
+            },
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              var begin = const Offset(1.0, 0.0);
+              var end = Offset.zero;
+              var curve = Curves.ease;
+
+              var tween =
+                  Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+              return SlideTransition(
+                position: animation.drive(tween),
+                child: child,
+              );
+            },
+          ),
+        );
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          errorSnackbar(context, 'Please enter a stronger password');
+        } else if (e.code == 'email-already-in-use') {
+          errorSnackbar(
+              context, 'This user already exists. Please Login to continue');
+        }
+      } catch (e) {
+        errorSnackbar(context, e.toString());
+      }
+    }
 
     return Scaffold(
         backgroundColor: backgroundgreen,
@@ -31,7 +93,7 @@ class _SignupPageState extends State<SignupPage> {
             children: [
               Column(
                 children: [
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 70),
                   Container(
                     height: 100,
                     width: 100,
@@ -56,7 +118,7 @@ class _SignupPageState extends State<SignupPage> {
               Column(
                 children: [
                   SignUpFormField(
-                    controller: emailController,
+                    controller: _authEmailController,
                     title: 'Email',
                     hint: 'aaditya@gmail.com',
                     inputType: TextInputType.emailAddress,
@@ -116,7 +178,7 @@ class _SignupPageState extends State<SignupPage> {
                                       ),
                                     )),
                           cursorColor: Colors.white,
-                          controller: passwordController,
+                          controller: _authPasswordController,
                           style: GoogleFonts.poppins(color: Colors.white),
                           keyboardType: TextInputType.visiblePassword,
                         ),
@@ -132,12 +194,18 @@ class _SignupPageState extends State<SignupPage> {
                 margin: const EdgeInsets.fromLTRB(25, 0, 25, 30),
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const UserInfo(),
-                      ),
-                    );
+                    if (_authEmailController.text.isNotEmpty &&
+                        _authPasswordController.text.trim().isNotEmpty) {
+                      setState(() {
+                        _loading = true;
+                      });
+                      emailRegisteration();
+                      setState(() {
+                        _loading = false;
+                      });
+                    } else {
+                      errorSnackbar(context, 'Enter email and password');
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -146,11 +214,13 @@ class _SignupPageState extends State<SignupPage> {
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
-                  child: Text(
-                    'Sign up',
-                    style: GoogleFonts.inter(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
+                  child: _loading
+                      ? const CircularProgressIndicator()
+                      : Text(
+                          'Sign up',
+                          style: GoogleFonts.inter(
+                              color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
                 ),
               )
             ],

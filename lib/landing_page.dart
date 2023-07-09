@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:unaccountable/login_choice.dart';
 import 'package:unaccountable/user_onboarding/signup_dart.dart';
 
 class LandingPage extends StatefulWidget {
@@ -101,7 +102,7 @@ class _LandingPageState extends State<LandingPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const SignupPage(),
+                    builder: (context) => const LoginChoice(),
                   ),
                 );
               },

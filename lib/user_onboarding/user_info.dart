@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:unaccountable/home/home.dart';
@@ -5,15 +7,18 @@ import 'package:unaccountable/landing_page.dart';
 import 'package:unaccountable/lists/lists.dart';
 import 'package:unaccountable/widgets/custom_form_field.dart';
 import 'package:unaccountable/widgets/custom_drop_down.dart';
+import 'package:unaccountable/widgets/custom_snackbars.dart';
 
-class UserInfo extends StatefulWidget {
-  const UserInfo({super.key});
+class UserInfoPage extends StatefulWidget {
+  const UserInfoPage({super.key});
 
   @override
-  State<UserInfo> createState() => _UserInfoState();
+  State<UserInfoPage> createState() => _UserInfoPageState();
 }
 
-class _UserInfoState extends State<UserInfo> {
+bool _loading = false;
+
+class _UserInfoPageState extends State<UserInfoPage> {
   String _gender = genders[0];
   TextEditingController age = TextEditingController();
   TextEditingController name = TextEditingController();
@@ -22,6 +27,62 @@ class _UserInfoState extends State<UserInfo> {
   @override
   Widget build(BuildContext context) {
     var w = MediaQuery.of(context).size.width;
+
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User user = auth.currentUser!;
+    final uid = user.uid;
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    Future<void> addUserData() {
+      return users.doc(uid).set({
+        'name': name.text
+            .trim()
+            .split(" ")
+            .map((word) => word[0].toUpperCase() + word.substring(1))
+            .join(" "),
+        'age': age.text
+            .trim()
+            .split(" ")
+            .map((word) => word[0].toUpperCase() + word.substring(1))
+            .join(" "),
+        'country': _country
+            .split(" ")
+            .map((word) => word[0].toUpperCase() + word.substring(1))
+            .join(" "),
+        'gender': _gender
+            .split(" ")
+            .map((word) => word[0].toUpperCase() + word.substring(1))
+            .join(" "),
+      }).then(
+        (value) {
+          successSnackbar(context, "User Added");
+          Navigator.popUntil(context, (route) => false);
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              transitionDuration: const Duration(milliseconds: 500),
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return const HomePage();
+              },
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                var begin = const Offset(1.0, 0.0);
+                var end = Offset.zero;
+                var curve = Curves.ease;
+
+                var tween = Tween(begin: begin, end: end)
+                    .chain(CurveTween(curve: curve));
+
+                return SlideTransition(
+                  position: animation.drive(tween),
+                  child: child,
+                );
+              },
+            ),
+          );
+        },
+      ).catchError(
+          (error) => errorSnackbar(context, "Failed to add user: $error"));
+    }
 
     return WillPopScope(
       child: Scaffold(
@@ -88,12 +149,13 @@ class _UserInfoState extends State<UserInfo> {
                 margin: const EdgeInsets.fromLTRB(25, 0, 25, 0),
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomePage(),
-                      ),
-                    );
+                    setState(() {
+                      _loading = true;
+                    });
+                    addUserData();
+                    setState(() {
+                      _loading = false;
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -102,11 +164,13 @@ class _UserInfoState extends State<UserInfo> {
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
-                  child: Text(
-                    'Sign up',
-                    style: GoogleFonts.inter(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
+                  child: _loading
+                      ? const CircularProgressIndicator()
+                      : Text(
+                          'Sign up',
+                          style: GoogleFonts.inter(
+                              color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
                 ),
               )
             ],
