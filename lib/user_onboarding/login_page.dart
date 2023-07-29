@@ -88,137 +88,140 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     return Scaffold(
-      backgroundColor: backgroundgreen,
-      resizeToAvoidBottomInset: false,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
+        backgroundColor: backgroundgreen,
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const SizedBox(height: 50),
-              AnimatedTextKit(
-                pause: Duration.zero,
-                repeatForever: true,
-                animatedTexts: [
-                  ColorizeAnimatedText(
-                    'Continue the hustle!',
-                    textStyle: GoogleFonts.poppins(
-                      fontSize: 40,
+              Column(
+                children: [
+                  const SizedBox(height: 70),
+                  AnimatedTextKit(
+                    pause: Duration.zero,
+                    repeatForever: true,
+                    animatedTexts: [
+                      ColorizeAnimatedText(
+                        'Continue the hustle!',
+                        textStyle: GoogleFonts.poppins(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                        colors: [
+                          Colors.green,
+                          red,
+                        ],
+                        speed: const Duration(milliseconds: 1000),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 100),
+              Column(
+                children: [
+                  SignUpFormField(
+                    controller: _emailController,
+                    title: 'Email',
+                    hint: 'aaditya@gmail.com',
+                    inputType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 25),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 35),
+                        child: Text(
+                          'Password',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: w,
+                        margin: const EdgeInsets.symmetric(horizontal: 25),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: TextField(
+                          obscureText: _hidePassword,
+                          decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: 'Minimum 6 characters',
+                              hintStyle:
+                                  GoogleFonts.poppins(color: Colors.grey),
+                              suffixIcon: _hidePassword
+                                  ? IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _hidePassword = !_hidePassword;
+                                        });
+                                      },
+                                      icon: const Icon(
+                                        Icons.visibility,
+                                        color: Colors.white,
+                                      ))
+                                  : IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _hidePassword = !_hidePassword;
+                                        });
+                                      },
+                                      icon: Icon(
+                                        Icons.visibility_off,
+                                        color: Colors.white.withOpacity(0.8),
+                                      ),
+                                    )),
+                          cursorColor: Colors.white,
+                          controller: _passwordController,
+                          style: GoogleFonts.poppins(color: Colors.white),
+                          keyboardType: TextInputType.visiblePassword,
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 150),
+              Container(
+                height: 50,
+                width: w,
+                margin: const EdgeInsets.fromLTRB(25, 0, 25, 30),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5)),
+                  ),
+                  onPressed: () {
+                    if (_emailController.text.trim().isEmpty ||
+                        _passwordController.text.trim().isEmpty) {
+                      errorSnackbar(
+                          context, 'Please enter a email and password');
+                    } else {
+                      passwordSignIn();
+                    }
+                  },
+                  child: Text(
+                    'Login',
+                    style: GoogleFonts.inter(
+                      color: backgroundgreen,
                       fontWeight: FontWeight.bold,
                     ),
-                    textAlign: TextAlign.center,
-                    colors: [
-                      Colors.green,
-                      red,
-                    ],
-                    speed: const Duration(milliseconds: 1000),
                   ),
-                ],
-              ),
-            ],
-          ),
-          Column(
-            children: [
-              SignUpFormField(
-                controller: _emailController,
-                title: 'Email',
-                hint: 'aaditya@gmail.com',
-                inputType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 50),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 35),
-                    child: Text(
-                      'Password',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: w,
-                    margin: const EdgeInsets.symmetric(horizontal: 25),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: TextField(
-                      obscureText: _hidePassword,
-                      decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Minimum 6 characters',
-                          hintStyle: GoogleFonts.poppins(color: Colors.grey),
-                          suffixIcon: _hidePassword
-                              ? IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _hidePassword = !_hidePassword;
-                                    });
-                                  },
-                                  icon: const Icon(
-                                    Icons.visibility,
-                                    color: Colors.white,
-                                  ))
-                              : IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _hidePassword = !_hidePassword;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    Icons.visibility_off,
-                                    color: Colors.white.withOpacity(0.8),
-                                  ),
-                                )),
-                      cursorColor: Colors.white,
-                      controller: _passwordController,
-                      style: GoogleFonts.poppins(color: Colors.white),
-                      keyboardType: TextInputType.visiblePassword,
-                    ),
-                  )
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 30),
-          Container(
-            height: 50,
-            width: w,
-            margin: const EdgeInsets.fromLTRB(25, 0, 25, 30),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5)),
-              ),
-              onPressed: () {
-                if (_emailController.text.trim().isEmpty ||
-                    _passwordController.text.trim().isEmpty) {
-                  errorSnackbar(context, 'Please enter a email and password');
-                } else {
-                  passwordSignIn();
-                }
-              },
-              child: Text(
-                'Login',
-                style: GoogleFonts.inter(
-                  color: backgroundgreen,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 }
