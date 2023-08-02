@@ -16,9 +16,10 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+int currentIndex = 0;
+
 class _HomePageState extends State<HomePage> {
   final FirebaseAuth auth = FirebaseAuth.instance;
-  int _currentIndex = 0;
   List list = [
     const HomeBody(),
     const ListPage(),
@@ -52,11 +53,11 @@ class _HomePageState extends State<HomePage> {
         ],
         onTabChange: (index) {
           setState(() {
-            _currentIndex = index;
+            currentIndex = index;
           });
         },
       ),
-      body: list[_currentIndex],
+      body: list[currentIndex],
     );
   }
 }
@@ -76,6 +77,50 @@ class _HomeBodyState extends State<HomeBody> {
     final User user = auth.currentUser!;
     final uid = user.uid;
     final users = FirebaseFirestore.instance.collection('users');
+
+    int daysLeft;
+    double progress;
+
+    String getCurrentDate() {
+      String formatDigits(int digits) {
+        return digits < 10 ? '0$digits' : '$digits';
+      }
+
+      DateTime now = DateTime.now();
+      String currentDate =
+          '${formatDigits(now.day)}-${formatDigits(now.month)}-${formatDigits(now.year)}';
+      return currentDate;
+    }
+
+    String _convertToValidDateFormat(String dateString) {
+      List<String> parts = dateString.split("-");
+      String day = parts[0];
+      String month = parts[1];
+      String year = parts[2];
+      return "$year-$month-$day";
+    }
+
+    int calculateDateDifferenceInDays(String today, String deadline) {
+      DateTime date1 = DateTime.parse(_convertToValidDateFormat(today));
+      DateTime date2 = DateTime.parse(_convertToValidDateFormat(deadline));
+
+      Duration difference = date2.difference(date1);
+      return difference.inDays;
+    }
+
+    calculateDaysLeft(String start, String deadline) {
+      String today = getCurrentDate();
+      return calculateDateDifferenceInDays(today, deadline);
+    }
+
+    calculateProgress(String start, String deadline) {
+      String today = getCurrentDate();
+      int total = calculateDateDifferenceInDays(start, deadline);
+      daysLeft = calculateDateDifferenceInDays(today, deadline);
+      int diff = total - daysLeft;
+      return (diff * 100) / total;
+    }
+
     return Scaffold(
       body: FutureBuilder(
         future: users.doc(uid).get(),
@@ -245,7 +290,7 @@ class _HomeBodyState extends State<HomeBody> {
                         ),
                         const SizedBox(height: 10),
                         SizedBox(
-                          height: 200,
+                          height: 160,
                           width: w,
                           child: StreamBuilder<QuerySnapshot>(
                             stream: FirebaseFirestore.instance
@@ -276,11 +321,21 @@ class _HomeBodyState extends State<HomeBody> {
                                 itemBuilder: (context, index) {
                                   Map<String, dynamic> data = documents[index]
                                       .data() as Map<String, dynamic>;
+                                  daysLeft = calculateDaysLeft(
+                                    data['start'],
+                                    data['deadline'],
+                                  );
+                                  progress = calculateProgress(
+                                    data['start'],
+                                    data['deadline'],
+                                  );
                                   return goalTile(
                                     context,
                                     data['title'] ?? 'na',
                                     data['freq'] ?? 'na',
                                     data['deadline'] ?? 'na',
+                                    progress,
+                                    daysLeft,
                                   );
                                 },
                               );

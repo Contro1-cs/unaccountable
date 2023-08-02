@@ -116,7 +116,10 @@ class _ListPageState extends State<ListPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      Divider(
+                        color: Colors.white.withOpacity(0.4),
+                        height: 30,
+                      ),
                       Text(
                         'Current Goals',
                         style: GoogleFonts.inter(
@@ -155,12 +158,16 @@ class _ListPageState extends State<ListPage> {
                               itemBuilder: (context, index) {
                                 Map<String, dynamic> data = documents[index]
                                     .data() as Map<String, dynamic>;
+                                double progress = 50;
+                                int daysLeft = 69;
 
                                 return goalTile(
                                   context,
                                   data['title'] ?? 'na',
                                   data['freq'] ?? 'na',
                                   data['deadline'] ?? 'na',
+                                  progress,
+                                  daysLeft,
                                 );
                               },
                             );

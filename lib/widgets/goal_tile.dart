@@ -15,8 +15,10 @@ label(String text) {
   );
 }
 
-goalTile(context, String title, String tag, String deadline) {
+goalTile(context, String title, String tag, String deadline, double progress,
+    int daysLeft) {
   var w = MediaQuery.of(context).size.width;
+  int _progress = int.parse(progress.toString().split('.').first);
   return Container(
     width: w,
     margin: const EdgeInsets.symmetric(vertical: 5),
@@ -56,7 +58,7 @@ goalTile(context, String title, String tag, String deadline) {
                 child: Row(
                   children: [
                     Expanded(
-                      flex: 40,
+                      flex: _progress,
                       child: Container(
                         height: 10,
                         decoration: BoxDecoration(
@@ -66,7 +68,7 @@ goalTile(context, String title, String tag, String deadline) {
                       ),
                     ),
                     Expanded(
-                      flex: 100 - 40,
+                      flex: 100 - _progress,
                       child: Container(),
                     )
                   ],
@@ -74,7 +76,7 @@ goalTile(context, String title, String tag, String deadline) {
               ),
             ),
             Text(
-              '40%',
+              '${_progress.toString()}%',
               style: GoogleFonts.inter(color: Colors.black),
             ),
           ],
@@ -97,7 +99,7 @@ goalTile(context, String title, String tag, String deadline) {
             ),
             const SizedBox(width: 20),
             Text(
-              '121 days left',
+              '$daysLeft days left',
               style: GoogleFonts.inter(color: const Color(0xffEF3350)),
             )
           ],
