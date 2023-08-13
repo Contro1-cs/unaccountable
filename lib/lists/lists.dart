@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 final List genders = [
   "Man",
   "Woman",
@@ -200,4 +202,11 @@ final List<String> countries = [
   'Yemen',
   'Zambia',
   'Zimbabwe',
+];
+
+List frequencyList = [
+  'Daily',
+  'Weekly',
+  'Monthly',
+  'Yearly',
 ];

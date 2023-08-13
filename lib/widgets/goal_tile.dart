@@ -18,7 +18,8 @@ label(String text) {
 goalTile(context, String title, String tag, String deadline, double progress,
     int daysLeft) {
   var w = MediaQuery.of(context).size.width;
-  int _progress = int.parse(progress.toString().split('.').first);
+  int _progress =
+      progress > 100 ? 100 : int.parse(progress.toString().split('.').first);
   return Container(
     width: w,
     margin: const EdgeInsets.symmetric(vertical: 5),
@@ -99,7 +100,7 @@ goalTile(context, String title, String tag, String deadline, double progress,
             ),
             const SizedBox(width: 20),
             Text(
-              '$daysLeft days left',
+              daysLeft <= 0 ? '0 Days left' : '$daysLeft Days left',
               style: GoogleFonts.inter(color: const Color(0xffEF3350)),
             )
           ],

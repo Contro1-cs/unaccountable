@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:unaccountable/landing_page.dart';
 
 class SignUpFormField extends StatelessWidget {
   TextEditingController controller;
@@ -114,4 +115,35 @@ class UserInfoFormField extends StatelessWidget {
       ],
     );
   }
+}
+
+setGoalTile(context, TextEditingController controller) {
+  return Container(
+    padding: const EdgeInsets.symmetric(vertical: 5),
+    width: MediaQuery.of(context).size.width,
+    alignment: Alignment.center,
+    margin: const EdgeInsets.symmetric(horizontal: 30),
+    child: TextFormField(
+      style: GoogleFonts.inter(
+        color: Colors.white,
+        fontSize: 16,
+        fontWeight: FontWeight.normal,
+      ),
+      decoration: InputDecoration(
+        hintText: 'Set a goal',
+        hintStyle: GoogleFonts.inter(
+          color: Colors.grey[700],
+          fontSize: 16,
+          fontWeight: FontWeight.normal,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(5.0),
+          borderSide: BorderSide(color: lightGreen, width: 3),
+        ),
+      ),
+    ),
+  );
 }
