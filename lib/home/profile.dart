@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -8,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:unaccountable/home/home.dart';
 import 'package:unaccountable/landing_page.dart';
 import 'package:unaccountable/user_onboarding/user_info.dart';
 import 'package:unaccountable/widgets/custom_snackbars.dart';
@@ -106,14 +104,23 @@ class _ProfilePageState extends State<ProfilePage> {
     File file = File(filePath);
 
     try {
+      setState(() {
+        isLoading = true;
+      });
       var imageRef = storageRef.child("$uid/$uid.png");
       var uploadTask = imageRef.putFile(file);
       uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {});
       await uploadTask;
-      refreshProfile();
-      successSnackbar(context, 'Image uploaded successfully!');
+      refreshProfile().then(
+          (value) => successSnackbar(context, 'Image uploaded successfully!'));
+      setState(() {
+        isLoading = false;
+      });
     } catch (e) {
       errorSnackbar(context, 'Something went wrong: ${e.toString()}');
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 

@@ -103,7 +103,6 @@ class _HomeBodyState extends State<HomeBody> {
     int calculateDateDifferenceInDays(String today, String deadline) {
       DateTime date1 = DateTime.parse(_convertToValidDateFormat(today));
       DateTime date2 = DateTime.parse(_convertToValidDateFormat(deadline));
-
       Duration difference = date2.difference(date1);
       return difference.inDays;
     }
@@ -315,30 +314,49 @@ class _HomeBodyState extends State<HomeBody> {
                               List<QueryDocumentSnapshot> documents =
                                   snapshot.data!.docs;
 
-                              return ListView.builder(
-                                itemCount: 1,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemBuilder: (context, index) {
-                                  Map<String, dynamic> data = documents[index]
-                                      .data() as Map<String, dynamic>;
-                                  daysLeft = calculateDaysLeft(
-                                    data['start'],
-                                    data['deadline'],
-                                  );
-                                  progress = calculateProgress(
-                                    data['start'],
-                                    data['deadline'],
-                                  );
-                                  return goalTile(
-                                    context,
-                                    data['title'] ?? 'na',
-                                    data['freq'] ?? 'na',
-                                    data['deadline'] ?? 'na',
-                                    progress,
-                                    daysLeft,
-                                  );
-                                },
-                              );
+                              List<QueryDocumentSnapshot> filteredDocuments =
+                                  documents.where((doc) {
+                                Map<String, dynamic> data =
+                                    doc.data() as Map<String, dynamic>;
+                                int daysLeft = calculateDaysLeft(
+                                  data['start'],
+                                  data['deadline'],
+                                );
+                                return daysLeft != 0;
+                              }).toList();
+                              if (filteredDocuments.isEmpty) {
+                                return const Center(
+                                  child: Text(
+                                    "No Active goals? Back to being a bitch i guess",
+                                  ),
+                                );
+                              } else {
+                                return ListView.builder(
+                                  itemCount: 1,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    Map<String, dynamic> data =
+                                        filteredDocuments[index].data()
+                                            as Map<String, dynamic>;
+                                    daysLeft = calculateDaysLeft(
+                                      data['start'],
+                                      data['deadline'],
+                                    );
+                                    progress = calculateProgress(
+                                      data['start'],
+                                      data['deadline'],
+                                    );
+                                    return goalTile(
+                                      context,
+                                      data['title'] ?? 'na',
+                                      data['freq'] ?? 'na',
+                                      data['deadline'] ?? 'na',
+                                      progress,
+                                      daysLeft,
+                                    );
+                                  },
+                                );
+                              }
                             },
                           ),
                         ),

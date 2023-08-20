@@ -23,17 +23,29 @@ void goalBottomSheet({
   required String freqController,
 }) {
   String today = getCurrentDate();
+  String tomorrow = getTomorrowDate();
+  int hourNow = getCurrentHour();
 
   mockingText() {
     calculateDateDifferenceInDays(startDateController, endDateController);
-    if (startDateController != today) {
-      mockText = 'Why not start from today bitch?';
+    if (goalController.text.isEmpty) {
+      mockText = 'Enter the goal dumbass';
+    } else if (startDateController != today) {
+      if (hourNow >= 12) {
+        if (startDateController != tomorrow) {
+          mockText = 'Why not start from tomorrow? Bitch';
+        } else {
+          mockText = '';
+        }
+      } else if (hourNow <= 12) {
+        mockText = 'Why not start from today? Bitch';
+      }
     } else if (calculateDateDifferenceInDays(
           startDateController,
           endDateController,
         ) <=
         30) {
-      mockText = 'Thats not even a month pyssy!';
+      mockText = 'Thats not even a month! Pussy';
     } else if (freqController != frequencyList[0]) {
       mockText = "Can we try to do it ${frequencyList[freqIndex - 1]}?";
     } else {
@@ -310,14 +322,20 @@ void goalBottomSheet({
                       const SizedBox(height: 10),
                       GestureDetector(
                         onTap: () {
-                          setState(() {
-                            mockingText();
-                            startTimer();
-                          });
+                          if (goalController.text.isEmpty) {
+                            setState(() {
+                              stopTimer();
+                              mockingText();
+                            });
+                          } else {
+                            setState(() {
+                              stopTimer();
+                              mockingText();
+                              startTimer();
+                            });
+                          }
                         },
-                        child: AnimatedContainer(
-                          curve: Curves.decelerate,
-                          duration: const Duration(seconds: 1),
+                        child: Container(
                           height: 50,
                           width: MediaQuery.of(context).size.width,
                           decoration: BoxDecoration(
@@ -326,42 +344,16 @@ void goalBottomSheet({
                           ),
                           alignment: Alignment.center,
                           margin: const EdgeInsets.symmetric(horizontal: 30),
-                          child: Stack(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                      flex: 5 - _secondsLeft,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          color: Colors.red,
-                                        ),
-                                      )),
-                                  Expanded(
-                                    flex: _secondsLeft,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(5),
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                          child: Center(
+                            child: Text(
+                              timerStarted
+                                  ? _secondsLeft.toString()
+                                  : 'Get Started',
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontWeight: FontWeight.normal,
                               ),
-                              Center(
-                                child: Text(
-                                  timerStarted
-                                      ? _secondsLeft.toString()
-                                      : 'Get Started',
-                                  style: GoogleFonts.inter(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                              )
-                            ],
+                            ),
                           ),
                         ),
                       ),

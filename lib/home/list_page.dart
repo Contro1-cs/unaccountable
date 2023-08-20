@@ -213,55 +213,54 @@ class _ListPageState extends State<ListPage> {
                               );
                             }
 
-                            return StreamBuilder<QuerySnapshot>(
-                              stream: FirebaseFirestore.instance
-                                  .collection('users')
-                                  .doc(uid)
-                                  .collection('goals')
-                                  .snapshots(),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasError) {
-                                  return const Center(
-                                    child: Text('Error fetching data'),
+                            List<QueryDocumentSnapshot> documents =
+                                snapshot.data!.docs;
+
+                            List<QueryDocumentSnapshot> filteredDocuments =
+                                documents.where((doc) {
+                              Map<String, dynamic> data =
+                                  doc.data() as Map<String, dynamic>;
+                              int daysLeft = calculateDaysLeft(
+                                data['start'],
+                                data['deadline'],
+                              );
+                              return daysLeft != 0;
+                            }).toList();
+                            if (filteredDocuments.isEmpty) {
+                              return const Center(
+                                child: Text(
+                                  "No Active goals?\nWho do you think you are? Mr. I have it all",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              );
+                            } else {
+                              return ListView.builder(
+                                itemCount: filteredDocuments.length,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  Map<String, dynamic> data =
+                                      filteredDocuments[index].data()
+                                          as Map<String, dynamic>;
+                                  daysLeft = calculateDaysLeft(
+                                    data['start'],
+                                    data['deadline'],
                                   );
-                                }
-
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
+                                  progress = calculateProgress(
+                                    data['start'],
+                                    data['deadline'],
                                   );
-                                }
-
-                                List<QueryDocumentSnapshot> documents =
-                                    snapshot.data!.docs;
-
-                                return ListView.builder(
-                                  itemCount: 1,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemBuilder: (context, index) {
-                                    Map<String, dynamic> data = documents[index]
-                                        .data() as Map<String, dynamic>;
-                                    daysLeft = calculateDaysLeft(
-                                      data['start'],
-                                      data['deadline'],
-                                    );
-                                    progress = calculateProgress(
-                                      data['start'],
-                                      data['deadline'],
-                                    );
-                                    return goalTile(
-                                      context,
-                                      data['title'] ?? 'na',
-                                      data['freq'] ?? 'na',
-                                      data['deadline'] ?? 'na',
-                                      progress,
-                                      daysLeft,
-                                    );
-                                  },
-                                );
-                              },
-                            );
+                                  return goalTile(
+                                    context,
+                                    data['title'] ?? 'na',
+                                    data['freq'] ?? 'na',
+                                    data['deadline'] ?? 'na',
+                                    progress,
+                                    daysLeft,
+                                  );
+                                },
+                              );
+                            }
                           },
                         ),
                       ),
@@ -287,6 +286,19 @@ String getCurrentDate() {
   String currentDate =
       '${_formatDigits(now.day)}-${_formatDigits(now.month)}-${_formatDigits(now.year)}';
   return currentDate;
+}
+
+String getTomorrowDate() {
+  DateTime todayDate = DateTime.now();
+  DateTime tomorrowDate = todayDate.add(const Duration(days: 1));
+  String tomorrow =
+      '${_formatDigits(tomorrowDate.day)}-${_formatDigits(tomorrowDate.month)}-${_formatDigits(tomorrowDate.year)}';
+  return tomorrow;
+}
+
+int getCurrentHour() {
+  DateTime now = DateTime.now();
+  return now.hour;
 }
 
 int calculateDateDifferenceInDays(String today, String deadline) {
